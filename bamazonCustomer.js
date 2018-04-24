@@ -20,5 +20,21 @@ connection.connect(function(err) {
 
 
 function start() {
+    inquirer
+      .prompt({
+        name: "buyOrNot",
+        type: "rawlist",
+        message: "Would you like to buy something?",
+        choices: ["Yes. Show me the available items!", "No thanks dude."]
+      })
+      .then(function(answer) {
+  
+        if (answer.buyOrNot.toUpperCase() === "Yes. Show me the available items!") {
+        
+        }
+        else {
+          
+        }
+      });
   
 }
