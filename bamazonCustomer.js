@@ -14,14 +14,12 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
+  // run the purchase function after the connection is made to prompt the user
   purchase();
 });
 
-
 function purchase() {
-
-  connection.query("SELECT * FROM products", function(err, results) {
+  connection.query("SELECT item_id, product_name, price FROM products", function(err, results) {
     if (err) throw err;
 
     inquirer
@@ -32,7 +30,9 @@ function purchase() {
           choices: function() {
             var choiceArray = [];
             for (var i = 0; i < results.length; i++) {
-              choiceArray.push(results[i].product_name);
+              choiceArray.push(
+                results[i].item_id + " " + results[i].product_name + " $" + results[i].price + ".00"
+              );
             }
             return choiceArray;
           },
@@ -45,39 +45,28 @@ function purchase() {
         }
       ])
       .then(function(answer) {
-
-        var chosenItem;
         for (var i = 0; i < results.length; i++) {
-          if (results[i].product_name === answer.choice) {
-            chosenItem = results[i];
-          }
+          var chosenItem = answer.choice.item_id;
         }
 
-
-        if (chosenItem.stock_quantity > parseInt(answer.item)) {
-
+        if (chosenItem.stock_quantity >= parseInt(answer.item)) {
           connection.query(
-            "UPDATE products SET ? WHERE ?",
-            [
-              {
-                stock_quantity: (stock_quantity - answer.item)
-              },
-              {
-                item_id: chosenItem.item_id
-              }
-            ],
+            "UPDATE products SET stock_quantity = " +
+              newQuantity +
+              "WHERE item_id = " +
+              chosenItem,
+
             function(error) {
               if (error) throw err;
               console.log("Congratulations on your purchase!");
               purchase();
             }
           );
-        }
-        else {
-
+        } else {
           console.log("Insufficient quantity!");
-          purchase();
+          connection.end();
         }
       });
   });
 }
+
