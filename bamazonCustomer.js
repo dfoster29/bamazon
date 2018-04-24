@@ -71,17 +71,17 @@ function purchase() {
 
           if (chosenItem.stock_quantity >= parseInt(answer.item)) {
             connection.query(
-              "UPDATE auctions SET ? WHERE ?",
+              "UPDATE products SET ? WHERE ?",
               [
                 {
                   stock_quantity: newQuantity
                 },
                 {
-                  id: chosenItem.id
+                  item_id: chosenItem.item_id
                 }
               ],
               function(error) {
-                if (error) throw err;
+                if (error) throw error;
                 console.log("Congratulations on your purchase!");
                 purchase();
               }
